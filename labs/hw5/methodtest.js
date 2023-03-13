@@ -67,7 +67,6 @@ function postArticleXML(article, url) {
 			<h3>Article Name: ${article.name}</h3>
 			<h3>Article Body: ${document.getElementById("article_body").value}</h3>
 			<h3>Article Date: ${article.date}</h3>
-			<h3>JSON: ${this.responseText}</h3>
 			`;
 		}
 	};
@@ -93,7 +92,6 @@ function postArticleFetch(article, url) {
 			  <h3>Article Name: ${article.name}</h3>
 			  <h3>Article Body: ${document.getElementById("article_body").value}</h3>
 			  <h3>Article Date: ${article.date}</h3>
-			  <h3>JSON: ${this.responseText}</h3>
 			`;
 			} catch (error) {
 				console.error("Error parsing JSON:", error);
@@ -220,7 +218,6 @@ function putArticleXML(article, url) {
 			<h3>Article Name: ${article.name}</h3>
 			<h3>Article Body: ${document.getElementById("article_body").value}</h3>
 			<h3>Article Date: ${article.date}</h3>
-			<h3>JSON: ${this.responseText}</h3>
 			`;
 		}
 	};
@@ -246,7 +243,6 @@ function putArticleFetch(article, url) {
 			  <h3>Article Name: ${article.name}</h3>
 			  <h3>Article Body: ${document.getElementById("article_body").value}</h3>
 			  <h3>Article Date: ${article.date}</h3>
-			  <h3>JSON: ${this.responseText}</h3>
 			`;
 			} catch (error) {
 				console.error("Error parsing JSON:", error);
