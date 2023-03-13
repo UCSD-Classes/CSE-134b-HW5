@@ -7,8 +7,6 @@ const deleteBtn = document.querySelector("#deleteBtn");
 const xmlHTTP = document.querySelector("#xmlHTTP");
 const fetchAPI = document.querySelector("#fetchAPI");
 const response = document.querySelector("#response");
-// Set Up the Form
-const formData = new FormData();
 
 // Get Date and Time
 function getDate() {
@@ -88,14 +86,13 @@ function postArticleFetch(article, url) {
 		.then((data) => {
 			try {
 				const article = JSON.parse(data.data);
-				let articleData = `
-			<h3> Posted with Fetch! </h3>
-		  <h3>Article ID: ${article.id}</h3>
-		  <h3>Article Name: ${article.name}</h3>
-		  <h3>Article Body: ${document.getElementById("article_body").value}</h3>
-		  <h3>Article Date: ${article.date}</h3>
-		`;
-				response.innerHTML = articleData;
+				response.innerHTML = `
+				<h3> Posted with Fetch! </h3>
+			  <h3>Article ID: ${article.id}</h3>
+			  <h3>Article Name: ${article.name}</h3>
+			  <h3>Article Body: ${document.getElementById("article_body").value}</h3>
+			  <h3>Article Date: ${article.date}</h3>
+			`;
 			} catch (error) {
 				console.error("Error parsing JSON:", error);
 			}
@@ -115,22 +112,77 @@ function getArticle() {
 
 // Get Article with XML
 function getArticleXML(url) {
-	let xhr = new XMLHttpRequest();
-	xhr.open("GET", url, true);
-	xhr.onload = function () {
-		if (this.status === 200) {
-			response.innerHTML = this.responseText;
-		}
-	};
-	xhr.send();
+	return new Promise((resolve, reject) => {
+		// Get the query string parameters from the form
+		const form = document.querySelector("form");
+		const formData = new FormData(form);
+		const queryString = new URLSearchParams(formData).toString();
+
+		// Append the query string to the URL
+		const urlWithQueryString = url + "?" + queryString;
+
+		// Create a new XHR object
+		const xhr = new XMLHttpRequest();
+
+		// Set up the XHR request
+		xhr.open("GET", urlWithQueryString);
+		xhr.responseType = "document";
+
+		// Handle XHR events
+		xhr.onload = () => {
+			if (xhr.status >= 200 && xhr.status < 300) {
+				resolve(xhr.responseXML);
+
+				response.innerHTML = `
+				<h3> Got from XHR! </h3>
+				<h3>URL: ${urlWithQueryString}</h3>
+				`;
+			} else {
+				reject(new Error("XHR request failed"));
+				console.log("Error: " + xhr.statusText);
+			}
+		};
+		xhr.onerror = () => {
+			reject(new Error("XHR request failed"));
+			console.log("Error: " + xhr.statusText);
+		};
+
+		// Send the XHR request
+		xhr.send();
+	});
 }
 
-// Get Article with Fetch
 function getArticleFetch(url) {
-	fetch(url)
-		.then((response) => response.json())
-		.then((data) => (response.innerHTML = data))
-		.catch((err) => console.log(err));
+	// Get the query string parameters from the form
+	const form = document.querySelector("form");
+	const formData = new FormData(form);
+	const queryString = new URLSearchParams(formData).toString();
+
+	// Append the query string to the URL
+	const urlWithQueryString = url + "?" + queryString;
+
+	// Perform the GET request using the fetch API
+	return fetch(urlWithQueryString)
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error("Network Error!");
+			}
+			return response.text();
+		})
+		.then((xmlText) => {
+			// Set innerHTML of response to the url
+			response.innerHTML = `
+		<h3> Got from Fetch! </h3>
+		<h3>URL: ${urlWithQueryString}</h3>
+		`;
+
+			// Parse the XML text and return the resulting document
+			const parser = new DOMParser();
+			return parser.parseFromString(xmlText, "application/xml");
+		})
+		.catch((error) => {
+			console.error("Error during fetch operation:", error);
+		});
 }
 
 // Put Article
@@ -185,14 +237,13 @@ function putArticleFetch(article, url) {
 		.then((data) => {
 			try {
 				const article = JSON.parse(data.data);
-				let articleData = `
-			<h3> Put with Fetch! </h3>
-		  <h3>Article ID: ${article.id}</h3>
-		  <h3>Article Name: ${article.name}</h3>
-		  <h3>Article Body: ${document.getElementById("article_body").value}</h3>
-		  <h3>Article Date: ${article.date}</h3>
-		`;
-				response.innerHTML = articleData;
+				response.innerHTML = `
+				<h3> Put with Fetch! </h3>
+			  <h3>Article ID: ${article.id}</h3>
+			  <h3>Article Name: ${article.name}</h3>
+			  <h3>Article Body: ${document.getElementById("article_body").value}</h3>
+			  <h3>Article Date: ${article.date}</h3>
+			`;
 			} catch (error) {
 				console.error("Error parsing JSON:", error);
 			}
@@ -212,22 +263,80 @@ function deleteArticle() {
 
 // Delete Article with XML
 function deleteArticleXML(url) {
-	let xhr = new XMLHttpRequest();
-	xhr.open("DELETE", url, true);
-	xhr.onload = function () {
-		if (this.status === 200) {
-			response.innerHTML = this.responseText;
-		}
-	};
-	xhr.send();
+	return new Promise((resolve, reject) => {
+		// Get the query string parameters from the form
+		const form = document.querySelector("form");
+		const formData = new FormData(form);
+		const queryString = new URLSearchParams(formData).toString();
+
+		// Append the query string to the URL
+		const urlWithQueryString = url + "?" + queryString;
+
+		// Create a new XHR object
+		const xhr = new XMLHttpRequest();
+
+		// Set up the XHR request
+		xhr.open("DELETE", urlWithQueryString);
+
+		// Handle XHR events
+		xhr.onload = () => {
+			if (xhr.status >= 200 && xhr.status < 300) {
+				resolve(xhr.responseXML);
+
+				// Set the innerHTML of the response element
+				response.innerHTML = `
+			<h3>Deleted using XHR!</h3>
+			<h3>URL: ${urlWithQueryString}</h3>
+		  `;
+			} else {
+				reject(new Error("XHR request failed"));
+				console.log("Error: " + xhr.statusText);
+			}
+		};
+		xhr.onerror = () => {
+			reject(new Error("XHR request failed"));
+			console.log("Error: " + xhr.statusText);
+		};
+
+		// Send the XHR request
+		xhr.send();
+	});
 }
 
 // Delete Article with Fetch
 function deleteArticleFetch(url) {
-	fetch(url, {
+	// Get the query string parameters from the form
+	const form = document.querySelector("form");
+	const formData = new FormData(form);
+	const queryString = new URLSearchParams(formData).toString();
+
+	// Append the query string to the URL
+	const urlWithQueryString = url + "?" + queryString;
+
+	// Perform the DELETE request using the fetch API
+	return fetch(urlWithQueryString, {
 		method: "DELETE",
 	})
-		.then((response) => response.json())
-		.then((data) => (response.innerHTML = data))
-		.catch((err) => console.log(err));
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error("Network Error!");
+			}
+
+			// Set the innerHTML of the response element
+			response.innerHTML = `
+		  <h3>Deleted using Fetch!</h3>
+		  <h3>URL: ${urlWithQueryString}</h3>
+		`;
+
+			// Return the response as text
+			return response.text();
+		})
+		.then((xmlText) => {
+			// Parse the XML text and return the resulting document
+			const parser = new DOMParser();
+			return parser.parseFromString(xmlText, "application/xml");
+		})
+		.catch((error) => {
+			console.error("Error during fetch operation:", error);
+		});
 }
