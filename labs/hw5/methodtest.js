@@ -325,17 +325,16 @@ function deleteArticleFetch(url) {
 			if (!response.ok) {
 				throw new Error("Network Error!");
 			}
-
+			// Return the response as text
+			return response.text();
+		})
+		.then((xmlText) => {
 			// Set the innerHTML of the response element
 			response.innerHTML = `
 		  <h3>Deleted using Fetch!</h3>
 		  <h3>URL: ${urlWithQueryString}</h3>
 		`;
 
-			// Return the response as text
-			return response.text();
-		})
-		.then((xmlText) => {
 			// Parse the XML text and return the resulting document
 			const parser = new DOMParser();
 			return parser.parseFromString(xmlText, "application/xml");
